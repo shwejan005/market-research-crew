@@ -19,46 +19,70 @@ class MarketResearchCrew():
     
     # If you would like to add tools to your agents, you can learn more about it here:
     # https://docs.crewai.com/concepts/agents#agent-tools
+    agents_config = "config/agents.yaml"
+    tasks_config = "config/tasks.yaml"
+
+    # Agents
     @agent
-    def researcher(self) -> Agent:
-        return Agent(
-            config=self.agents_config['researcher'], # type: ignore[index]
-            verbose=True
-        )
+    def market_research_specialist(self) -> Agent:
+        return Agent(self.agents_config["market_research_specialist"])
 
     @agent
-    def reporting_analyst(self) -> Agent:
-        return Agent(
-            config=self.agents_config['reporting_analyst'], # type: ignore[index]
-            verbose=True
-        )
+    def competitive_intelligence_analyst(self) -> Agent:
+        return Agent(self.agents_config["competitive_intelligence_analyst"])
+    
+    @agent
+    def customer_insights_researcher(self) -> Agent:
+        return Agent(self.agents_config["customer_insights_researcher"])
 
-    # To learn more about structured task outputs,
-    # task dependencies, and task callbacks, check out the documentation:
-    # https://docs.crewai.com/concepts/tasks#overview-of-a-task
+    @agent
+    def product_strategy_advisor(self) -> Agent:
+        return Agent(self.agents_config["product_strategy_advisor"])
+
+    @agent
+    def business_analyst(self) -> Agent:
+        return Agent(self.agents_config["business_analyst"])
+    
+
+    # Tasks
     @task
-    def research_task(self) -> Task:
+    def market_research_task(self) -> Task:
         return Task(
-            config=self.tasks_config['research_task'], # type: ignore[index]
+            self.tasks_config["market_research_task"]
         )
 
     @task
-    def reporting_task(self) -> Task:
+    def competitive_intelligence_task(self) -> Task:
         return Task(
-            config=self.tasks_config['reporting_task'], # type: ignore[index]
-            output_file='report.md'
+            self.tasks_config["competitive_intelligence_task"],
+            context= [self.market_research_task()]
         )
 
+    @task
+    def customer_insights_task(self) -> Task:
+        return Task(
+            self.tasks_config["customer_insights_task"],
+            context=[self.market_research_task(), self.competitive_intelligence_task()]
+        )
+
+    @task
+    def product_strategy_task(self) -> Task:
+        return Task(
+            self.tasks_config["product_strategy_task"],
+            context=[self.market_research_task(), self.competitive_intelligence_task(), self.customer_insights_task()]
+        )
+
+    @task
+    def business_analyst_task(self) -> Task:
+        return Task(
+            self.tasks_config["business_analyst_task"],
+            context=[self.market_research_task(), self.competitive_intelligence_task(), self.customer_insights_task(), self.product_strategy_task()]
+        )
+    
     @crew
     def crew(self) -> Crew:
-        """Creates the MarketResearchCrew crew"""
-        # To learn how to add knowledge sources to your crew, check out the documentation:
-        # https://docs.crewai.com/concepts/knowledge#what-is-knowledge
-
         return Crew(
-            agents=self.agents, # Automatically created by the @agent decorator
-            tasks=self.tasks, # Automatically created by the @task decorator
-            process=Process.sequential,
-            verbose=True,
-            # process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
+            agents=self.agents,
+            tasks=self.tasks,
+            process=Process.SEQUENTIAL
         )
