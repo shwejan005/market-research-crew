@@ -5,7 +5,7 @@ description = "market-research-crew using crewAI"
 authors = [{ name = "Your Name", email = "you@example.com" }]
 requires-python = ">=3.10,<3.14"
 dependencies = [
-    "crewai[tools]==1.8.0",
+    "crewai[google-genai,tools]==1.8.0",
     "selenium>=4.39.0",
     "tools[crewai]>=1.0.17",
     "webdriver-manager>=4.0.2",
